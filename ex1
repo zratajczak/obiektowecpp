@@ -1,0 +1,74 @@
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+class Sequence {
+private:
+    std::vector<char> seq; 
+
+public:
+   
+    Sequence() = default;
+
+    void setSequence(const std::vector<char>& newSeq) {
+        seq = newSeq;
+    }
+
+    std::vector<char> getSequence() const {
+        return seq;
+    }
+
+    void display() const {
+        for (char nucleotide : seq) {
+            std::cout << nucleotide;
+        }
+        std::cout << "\n";
+    }
+
+    bool readFromFasta(const std::string& filepath) {
+        std::ifstream file(filepath);
+        if (!file.is_open()) {
+            std::cerr << "Error: Could not open the file " << filepath << "\n";
+            return false;
+        }
+
+        std::string line;
+        bool sequenceStarted = false;
+
+        while (std::getline(file, line)) {
+            // Skip description lines starting with '>'
+            if (line[0] == '>') {
+                continue;
+            }
+            for (char nucleotide : line) {
+                seq.push_back(nucleotide);
+            }
+            sequenceStarted = true;
+        }
+
+        file.close();
+
+        if (!sequenceStarted) {
+            std::cerr << "Error: No sequence found in the file " << filepath << "\n";
+            return false;
+        }
+
+        return true;
+    }
+};
+
+int main() {
+    Sequence seqObj;
+
+    std::string filepath = "C:\\Users\\margo\\CLionProjects\\cpp_obiektowe\\zad1\\plik.fasta";
+    if (seqObj.readFromFasta(filepath)) {
+        std::cout << "Sequence successfully read from " << filepath << "\n";
+        seqObj.display();
+    } else {
+        std::cout << "Failed to read sequence from the file.\n";
+    }
+
+    return 0;
+}
